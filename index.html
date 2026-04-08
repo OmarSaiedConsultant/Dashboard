@@ -3,488 +3,789 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>داشبورد خطة الكوميشن – ريش نعام 2020</title>
+<title>محوّل البيانات الذكي</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <style>
-  :root {
-    --bg:      #0b0f1c;
-    --s1:      #111827;
-    --s2:      #1a2235;
-    --s3:      #222d44;
-    --bdr:     rgba(255,255,255,0.07);
-    --bdr2:    rgba(255,255,255,0.13);
-    --txt:     #e8edf8;
-    --muted:   #7a8aaa;
-    --hint:    #4a5568;
-    --blue:    #4f9ef8;
-    --blueD:   #1d4ed8;
-    --teal:    #34d399;
-    --tealD:   #059669;
-    --amber:   #fbbf24;
-    --amberD:  #d97706;
-    --coral:   #f87171;
-    --coralD:  #dc2626;
-    --purple:  #a78bfa;
-    --purpleD: #7c3aed;
-    --cyan:    #22d3ee;
-    --r: 12px;
-    --rsm: 8px;
-  }
-  *{margin:0;padding:0;box-sizing:border-box}
-  body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:var(--txt);direction:rtl;min-height:100vh}
+:root {
+  --bg:#0b0f1c; --s1:#111827; --s2:#1a2235; --s3:#222d44;
+  --bdr:rgba(255,255,255,.07); --bdr2:rgba(255,255,255,.14);
+  --txt:#e8edf8; --muted:#7a8aaa; --hint:#4a5568;
+  --blue:#4f9ef8; --teal:#34d399; --amber:#fbbf24; --coral:#f87171;
+  --purple:#a78bfa; --cyan:#22d3ee; --pink:#f472b6; --green:#4ade80;
+  --r:14px; --rsm:9px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:var(--txt);direction:rtl;min-height:100vh}
  
-  /* ─── HEADER ─── */
-  .header{
-    background:linear-gradient(135deg,#0d1730 0%,#130d2a 100%);
-    border-bottom:1px solid var(--bdr);
-    padding:20px 32px;
-    display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
-  }
-  .header-left{display:flex;align-items:center;gap:14px}
-  .hlogo{width:44px;height:44px;background:linear-gradient(135deg,var(--blue),var(--purple));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
-  .htitle{font-size:19px;font-weight:700;color:var(--txt)}
-  .hsub{font-size:12px;color:var(--muted);margin-top:2px}
-  .hbadge{font-size:11px;padding:5px 14px;background:rgba(79,158,248,0.12);border:1px solid rgba(79,158,248,0.25);border-radius:20px;color:var(--blue)}
+/* ── HEADER ── */
+.hdr{background:linear-gradient(135deg,#0d1730,#130d2a);border-bottom:1px solid var(--bdr);padding:16px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;position:sticky;top:0;z-index:99}
+.hdr-l{display:flex;align-items:center;gap:12px}
+.hlogo{width:40px;height:40px;background:linear-gradient(135deg,var(--blue),var(--purple));border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.htit{font-size:17px;font-weight:700}
+.hsub{font-size:11px;color:var(--muted);margin-top:1px}
+.hbadge{font-size:11px;padding:4px 12px;background:rgba(79,158,248,.1);border:1px solid rgba(79,158,248,.2);border-radius:20px;color:var(--blue)}
  
-  /* ─── LAYOUT ─── */
-  .page{padding:24px 32px;max-width:1320px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+/* ── UPLOAD PANEL ── */
+.upload-wrap{padding:24px 28px;max-width:1320px;margin:0 auto}
+.upload-panel{background:var(--s1);border:1px solid var(--bdr);border-radius:var(--r);padding:28px;margin-bottom:20px}
+.panel-lbl{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.7px;text-transform:uppercase;margin-bottom:16px}
+.dz{border:2px dashed rgba(79,158,248,.25);border-radius:12px;padding:44px 20px;text-align:center;cursor:pointer;background:var(--s2);transition:all .18s}
+.dz:hover,.dz.over{border-color:var(--blue);background:rgba(79,158,248,.05)}
+.dz-ico{font-size:36px;margin-bottom:10px}
+.dz p{font-size:14px;color:var(--muted)}.dz span{color:var(--blue);font-weight:600}
+.dz small{font-size:12px;color:var(--hint);display:block;margin-top:5px}
+#fi{display:none}
+.extra-row{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;align-items:stretch}
+.extra-input{flex:1;min-width:180px;background:var(--s2);border:1px solid var(--bdr);border-radius:var(--rsm);color:var(--txt);font-size:13px;padding:9px 13px;outline:none;transition:border .15s;font-family:inherit}
+.extra-input:focus{border-color:var(--blue)}
+.gen-btn{padding:9px 22px;background:linear-gradient(135deg,#2563eb,#7c3aed);border:none;border-radius:var(--rsm);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;display:flex;align-items:center;gap:7px;transition:opacity .15s}
+.gen-btn:hover{opacity:.88}.gen-btn:active{opacity:.72}.gen-btn:disabled{opacity:.4;cursor:default}
+.file-status{margin-top:10px;font-size:12px;display:none;align-items:center;gap:8px}
+.file-status.on{display:flex}
+.spin{width:13px;height:13px;border:2px solid var(--bdr2);border-top-color:var(--blue);border-radius:50%;animation:sp .6s linear infinite;flex-shrink:0}
+@keyframes sp{to{transform:rotate(360deg)}}
  
-  /* ─── SECTION TITLE ─── */
-  .sec{display:flex;align-items:center;gap:8px;margin-bottom:14px}
-  .sec-line{width:3px;height:18px;border-radius:2px}
-  .sec h2{font-size:13px;font-weight:600;letter-spacing:.5px;color:var(--muted);text-transform:uppercase}
+/* ── STATUS ── */
+.status{background:var(--s2);border:1px solid var(--bdr);border-radius:var(--rsm);padding:11px 15px;font-size:12px;color:var(--muted);display:none;align-items:center;gap:8px;margin-bottom:18px}
+.status.on{display:flex}
  
-  /* ─── KPI GRID ─── */
-  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px}
-  .kpi{
-    background:var(--s1);border:1px solid var(--bdr);border-radius:var(--r);
-    padding:18px 18px 16px;position:relative;overflow:hidden;
-    transition:border-color .2s;
-  }
-  .kpi:hover{border-color:var(--bdr2)}
-  .kpi-bar{position:absolute;top:0;right:0;width:3px;height:100%;border-radius:0 var(--r) var(--r) 0}
-  .kpi-glow{position:absolute;top:-30px;right:-20px;width:100px;height:100px;border-radius:50%;opacity:.07;pointer-events:none}
-  .kpi-ico{position:absolute;left:14px;bottom:12px;font-size:22px;opacity:.12}
-  .kpi-lbl{font-size:10px;color:var(--muted);letter-spacing:.6px;text-transform:uppercase;margin-bottom:8px}
-  .kpi-val{font-size:22px;font-weight:700;line-height:1;margin-bottom:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .kpi-sub{font-size:11px;color:var(--muted)}
+/* ── DASHBOARD ── */
+#dash{display:none}.dash-wrap{padding:0 28px 28px;max-width:1320px;margin:0 auto}
+.xbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:0 0 18px;border-bottom:1px solid var(--bdr);margin-bottom:22px}
+.xbtn{padding:7px 15px;border:1px solid var(--bdr2);border-radius:var(--rsm);background:var(--s1);color:var(--muted);cursor:pointer;font-size:12px;font-family:inherit;transition:all .15s;display:flex;align-items:center;gap:5px}
+.xbtn:hover{border-color:var(--blue);color:var(--blue)}
+.xbtn.p{background:var(--blue);border-color:var(--blue);color:#fff}
+.xbtn.p:hover{opacity:.88;color:#fff}
+#xl{display:none;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+#xl.on{display:flex}
  
-  /* ─── CHART GRID ─── */
-  .chart-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:18px}
-  .chart-grid.wide{grid-template-columns:1fr}
-  .card{background:var(--s1);border:1px solid var(--bdr);border-radius:var(--r);padding:20px}
-  .card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-  .card-title{font-size:13px;font-weight:600;color:var(--txt)}
-  .card-badge{font-size:10px;padding:3px 9px;background:var(--s2);border-radius:10px;color:var(--muted);border:1px solid var(--bdr)}
-  .chart-wrap{position:relative;width:100%}
-  .h220{height:220px}
-  .h260{height:260px}
-  .h180{height:180px}
+/* titles */
+.dash-title{font-size:22px;font-weight:700;margin-bottom:4px}
+.dash-sub{font-size:12px;color:var(--muted);margin-bottom:22px}
+.sec{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.sec-bar{width:3px;height:18px;border-radius:2px}
+.sec h2{font-size:11px;font-weight:600;letter-spacing:.7px;color:var(--muted);text-transform:uppercase}
  
-  /* custom legend */
-  .cleg{display:flex;flex-wrap:wrap;gap:14px;margin-top:12px;padding-top:11px;border-top:1px solid var(--bdr);font-size:11px;color:var(--muted)}
-  .cleg-item{display:flex;align-items:center;gap:6px}
-  .cleg-dot{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+/* ── KPI CARDS ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:13px;margin-bottom:22px}
+.kpi{background:var(--s1);border:1px solid var(--bdr);border-radius:var(--r);padding:17px 17px 15px;position:relative;overflow:hidden;transition:border-color .2s}
+.kpi:hover{border-color:var(--bdr2)}
+.kpi-accent{position:absolute;top:0;right:0;width:3px;height:100%;border-radius:0 var(--r) var(--r) 0}
+.kpi-glow{position:absolute;top:-30px;right:-20px;width:90px;height:90px;border-radius:50%;opacity:.08;pointer-events:none}
+.kpi-ico{position:absolute;left:13px;bottom:11px;font-size:22px;opacity:.13}
+.kpi-lbl{font-size:10px;color:var(--hint);letter-spacing:.5px;text-transform:uppercase;margin-bottom:7px;padding-left:28px}
+.kpi-val{font-size:24px;font-weight:700;line-height:1;margin-bottom:7px}
+.kpi-sub{font-size:11px;color:var(--muted)}
+.pos{color:var(--teal)!important}.neg{color:var(--coral)!important}
  
-  /* ─── TABLE ─── */
-  .tbl-wrap{overflow-x:auto}
-  table{width:100%;border-collapse:collapse;font-size:12px}
-  thead tr{background:var(--s2)}
-  th{padding:9px 14px;text-align:right;color:var(--muted);font-weight:600;font-size:11px;letter-spacing:.4px;border-bottom:1px solid var(--bdr)}
-  td{padding:9px 14px;text-align:right;border-bottom:1px solid rgba(255,255,255,.04);color:var(--txt)}
-  tr:last-child td{border-bottom:none}
-  tr:hover td{background:rgba(79,158,248,.04)}
-  .td-pos{color:var(--teal);font-weight:600}
-  .td-neg{color:var(--coral);font-weight:600}
-  .td-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600}
+/* ── CHARTS ── */
+.chart-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(370px,1fr));gap:16px;margin-bottom:20px}
+.chart-grid.solo{grid-template-columns:1fr}
+.card{background:var(--s1);border:1px solid var(--bdr);border-radius:var(--r);padding:18px}
+.card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px}
+.card-title{font-size:13px;font-weight:600}
+.card-badge{font-size:10px;padding:2px 8px;background:var(--s2);border-radius:10px;color:var(--hint);border:1px solid var(--bdr)}
+.cw{position:relative;width:100%;height:220px}
+.cw.tall{height:260px}
+.leg{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;padding-top:10px;border-top:1px solid var(--bdr);font-size:11px;color:var(--muted)}
+.li{display:flex;align-items:center;gap:5px}
+.ld{width:8px;height:8px;border-radius:2px;flex-shrink:0}
  
-  /* ─── COMMISSION RULES ─── */
-  .rules-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
-  .rule{background:var(--s2);border:1px solid var(--bdr);border-radius:var(--rsm);padding:14px 16px;display:flex;gap:12px;align-items:flex-start}
-  .rule-num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px}
-  .rule-txt{font-size:12px;line-height:1.7;color:var(--txt)}
+/* ── TABLE ── */
+.tbl-card{background:var(--s1);border:1px solid var(--bdr);border-radius:var(--r);padding:18px;margin-bottom:20px;overflow-x:auto}
+.tbl-card h3{font-size:13px;font-weight:600;margin-bottom:13px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:var(--s2);padding:8px 13px;text-align:right;color:var(--muted);font-weight:600;font-size:11px;border-bottom:1px solid var(--bdr);white-space:nowrap}
+td{padding:8px 13px;text-align:right;border-bottom:1px solid rgba(255,255,255,.04);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+tr:nth-last-child(-n+2) td{font-weight:600;color:var(--blue)}
+tr:hover td{background:rgba(79,158,248,.04)}
  
-  /* ─── PRINT / EXPORT BAR ─── */
-  .export-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:4px}
-  .ebtn{padding:8px 16px;border:1px solid var(--bdr2);border-radius:var(--rsm);background:var(--s1);color:var(--muted);cursor:pointer;font-size:12px;font-family:inherit;transition:all .15s;display:flex;align-items:center;gap:6px}
-  .ebtn:hover{border-color:var(--blue);color:var(--blue)}
-  .ebtn.prim{background:var(--blueD);border-color:var(--blueD);color:#fff}
-  .ebtn.prim:hover{opacity:.88;color:#fff}
-  #xload{font-size:12px;color:var(--muted);display:none;align-items:center;gap:6px}
-  #xload.on{display:flex}
-  .spin{width:13px;height:13px;border:2px solid var(--bdr2);border-top-color:var(--blue);border-radius:50%;animation:sp .65s linear infinite;flex-shrink:0}
-  @keyframes sp{to{transform:rotate(360deg)}}
+/* ── INSIGHTS ── */
+.ins-card{background:var(--s1);border:1px solid var(--bdr);border-radius:var(--r);padding:18px;margin-bottom:20px}
+.ins-card h3{font-size:13px;font-weight:600;margin-bottom:13px}
+.ins-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px;line-height:1.65}
+.ins-item:last-child{border-bottom:none}
+.ins-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:5px}
  
-  /* ─── GROWTH INDICATOR ─── */
-  .growth-strip{display:flex;gap:10px;flex-wrap:wrap}
-  .gitem{flex:1;min-width:100px;background:var(--s2);border-radius:var(--rsm);padding:12px 14px;text-align:center;border:1px solid var(--bdr)}
-  .gitem-lbl{font-size:10px;color:var(--muted);margin-bottom:5px}
-  .gitem-val{font-size:15px;font-weight:700}
+/* ── RULES ── */
+.rules-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-bottom:20px}
+.rule{background:var(--s2);border:1px solid var(--bdr);border-radius:var(--rsm);padding:14px 16px;display:flex;gap:11px;align-items:flex-start}
+.rule-n{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;background:rgba(79,158,248,.15);color:var(--blue)}
+.rule-t{font-size:12px;line-height:1.7}
  
-  @media(max-width:700px){
-    .page{padding:14px}
-    .header{padding:14px}
-    .chart-grid{grid-template-columns:1fr}
-    .kpi-grid{grid-template-columns:repeat(2,1fr)}
-    .rules-grid{grid-template-columns:1fr}
-  }
-  @media print{
-    .export-bar{display:none!important}
-    body{background:#fff;color:#000}
-    .card,.kpi,.rule{background:#f9f9f9;border:1px solid #ddd}
-  }
+/* ── RESPONSIVE ── */
+@media(max-width:680px){
+  .upload-wrap,.dash-wrap{padding-left:14px;padding-right:14px}
+  .hdr{padding:12px 14px}
+  .chart-grid{grid-template-columns:1fr}
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .rules-grid{grid-template-columns:1fr}
+}
+@media print{
+  .hdr .gen-btn,.xbar,.upload-panel,.status{display:none!important}
+  body{background:#fff;color:#000}
+  .card,.kpi,.tbl-card,.ins-card,.rule{background:#f9f9f9;border:1px solid #ddd}
+}
 </style>
 </head>
 <body>
  
-<div class="header">
-  <div class="header-left">
-    <div class="hlogo">🪶</div>
+<div class="hdr">
+  <div class="hdr-l">
+    <div class="hlogo">📊</div>
     <div>
-      <div class="htitle">خطة المبيعات والكوميشن – ريش نعام</div>
-      <div class="hsub">Target Plan 2020 · يونيو → نوفمبر · فرعا سموحة وميامي</div>
+      <div class="htit">محوّل البيانات الذكي</div>
+      <div class="hsub">Excel · CSV · PDF → داشبورد تلقائية</div>
     </div>
   </div>
-  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-    <span class="hbadge">Commission Plan 2020</span>
-    <div class="export-bar" style="margin:0">
-      <button class="ebtn prim" onclick="xPDF()">📄 PDF</button>
-      <button class="ebtn" onclick="xPNG()">🖼️ PNG</button>
-      <button class="ebtn" onclick="window.print()">🖨️ طباعة</button>
-      <div id="xload"><div class="spin"></div><span id="xm"></span></div>
+  <span class="hbadge">بدون API · يعمل محلياً</span>
+</div>
+ 
+<div class="upload-wrap">
+  <div class="upload-panel">
+    <div class="panel-lbl">ارفع ملفك</div>
+    <div class="dz" id="dz" onclick="document.getElementById('fi').click()">
+      <div class="dz-ico">☁️</div>
+      <p>اسحب ملفك هنا أو <span>اضغط للاختيار</span></p>
+      <small>Excel (.xlsx .xls) · CSV · PDF — يدعم أي شكل جدول</small>
+    </div>
+    <input type="file" id="fi" accept=".xlsx,.xls,.csv,.pdf,.txt" onchange="onFile(this.files[0])">
+    <div class="extra-row">
+      <input class="extra-input" id="hint" type="text"
+        placeholder="وصف إضافي (اختياري): مثلاً 'ركز على مقارنة الفروع' أو 'الأرقام بالجنيه المصري'">
+      <button class="gen-btn" id="gb" onclick="generate()" disabled>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        توليد الداشبورد
+      </button>
+    </div>
+    <div class="file-status" id="fs"><div class="spin" id="fspin"></div><span id="fstxt"></span></div>
+  </div>
+  <div class="status" id="st"><div class="spin"></div><span id="stxt">جاري التحليل...</span></div>
+</div>
+ 
+<div id="dash">
+  <div class="dash-wrap">
+    <div class="xbar">
+      <button class="xbtn p" onclick="xPDF()">📄 تحميل PDF</button>
+      <button class="xbtn" onclick="xPNG()">🖼️ تحميل PNG</button>
+      <button class="xbtn" onclick="window.print()">🖨️ طباعة</button>
+      <button class="xbtn" onclick="cpInsights()">📋 نسخ الملخص</button>
+      <button class="xbtn" onclick="reset()">🔄 ملف جديد</button>
+      <div id="xl"><div class="spin"></div><span id="xm"></span></div>
+    </div>
+    <div id="cz">
+      <div class="dash-title" id="dtit"></div>
+      <div class="dash-sub"  id="dsub"></div>
+      <div class="sec"><div class="sec-bar" style="background:var(--blue)"></div><h2>مؤشرات الأداء</h2></div>
+      <div class="kpi-grid" id="kpiGrid"></div>
+      <div class="sec"><div class="sec-bar" style="background:var(--teal)"></div><h2>الرسوم البيانية</h2></div>
+      <div class="chart-grid" id="chartGrid"></div>
+      <div class="tbl-card" id="tblCard" style="display:none">
+        <h3>📋 جدول البيانات التفصيلي</h3>
+        <div id="tblWrap"></div>
+      </div>
+      <div class="ins-card" id="insCard" style="display:none">
+        <h3>💡 الرؤى والتوصيات</h3>
+        <div id="insList"></div>
+      </div>
+      <div id="rulesWrap"></div>
     </div>
   </div>
 </div>
  
-<div class="page" id="cz">
- 
-  <!-- KPI ROW -->
-  <div>
-    <div class="sec"><div class="sec-line" style="background:var(--blue)"></div><h2>مؤشرات الأداء الرئيسية</h2></div>
-    <div class="kpi-grid" id="kpiGrid"></div>
-  </div>
- 
-  <!-- CHARTS ROW 1: Monthly trend + Branch comparison -->
-  <div>
-    <div class="sec"><div class="sec-line" style="background:var(--teal)"></div><h2>تحليل التارجت الشهري</h2></div>
-    <div class="chart-grid">
- 
-      <div class="card">
-        <div class="card-head">
-          <span class="card-title">تطور التارجت الإجمالي شهرياً</span>
-          <span class="card-badge">خط</span>
-        </div>
-        <div class="chart-wrap h220"><canvas id="c-trend"></canvas></div>
-        <div class="cleg" id="leg-trend"></div>
-      </div>
- 
-      <div class="card">
-        <div class="card-head">
-          <span class="card-title">مقارنة الفروع شهرياً</span>
-          <span class="card-badge">أعمدة</span>
-        </div>
-        <div class="chart-wrap h220"><canvas id="c-branches"></canvas></div>
-        <div class="cleg" id="leg-branches"></div>
-      </div>
- 
-    </div>
-  </div>
- 
-  <!-- CHARTS ROW 2: Branch share + Online vs Direct -->
-  <div class="chart-grid">
- 
-    <div class="card">
-      <div class="card-head">
-        <span class="card-title">حصة كل فرع من إجمالي التارجت</span>
-        <span class="card-badge">دونات</span>
-      </div>
-      <div class="chart-wrap h180"><canvas id="c-share"></canvas></div>
-      <div class="cleg" id="leg-share"></div>
-    </div>
- 
-    <div class="card">
-      <div class="card-head">
-        <span class="card-title">مقارنة القنوات: أونلاين vs مبيعات مباشرة</span>
-        <span class="card-badge">أعمدة</span>
-      </div>
-      <div class="chart-wrap h180"><canvas id="c-channels"></canvas></div>
-      <div class="cleg" id="leg-channels"></div>
-    </div>
- 
-    <div class="card">
-      <div class="card-head">
-        <span class="card-title">متوسط التارجت الفردي</span>
-        <span class="card-badge">خط</span>
-      </div>
-      <div class="chart-wrap h180"><canvas id="c-perhead"></canvas></div>
-      <div class="cleg" id="leg-perhead"></div>
-    </div>
- 
-  </div>
- 
-  <!-- DETAILED TABLE -->
-  <div>
-    <div class="sec"><div class="sec-line" style="background:var(--amber)"></div><h2>جدول التارجت التفصيلي</h2></div>
-    <div class="card">
-      <div class="tbl-wrap">
-        <table id="mainTable"></table>
-      </div>
-    </div>
-  </div>
- 
-  <!-- GROWTH TABLE -->
-  <div>
-    <div class="sec"><div class="sec-line" style="background:var(--cyan)"></div><h2>معدلات النمو الشهري</h2></div>
-    <div class="card">
-      <div class="growth-strip" id="growthStrip"></div>
-    </div>
-  </div>
- 
-  <!-- COMMISSION RULES -->
-  <div>
-    <div class="sec"><div class="sec-line" style="background:var(--purple)"></div><h2>قواعد الكوميشن</h2></div>
-    <div class="rules-grid" id="rulesGrid"></div>
-  </div>
- 
-</div>
- 
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script>
- 
-// ══════════════════════════════════════════
-// DATA (extracted directly from Excel file)
-// ══════════════════════════════════════════
-const MONTHS = ['يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر'];
- 
-const SMOHA  = [750000, 671550, 772282, 888125, 1021344, 1174545];
-const MIAMI  = [900000, 780450, 897518, 1032145, 1186967, 1365012];
-const TOTAL  = [1650000,1815000,2087250,2400338,2760388,3174446];
-const ONLINE = [350000, 413000, 487340, 575061, 678572, 800715];
-const DIRECT = TOTAL.map((t,i)=>t-ONLINE[i]);
-const AVG_ONLINE = [87500, 82600, 97468, 115012, 135714, 160143];
-const AVG_DIRECT = [235714,207429,238543,274324,315473,362794];
- 
-const RULES = [
-  { num:1, color:'#4f9ef8', bg:'rgba(79,158,248,.12)',
-    text:'الكوميشن 1.5% موزَّعة على الفريق ككل (أونلاين + مبيعات مباشرة)، كل فرد بحسب مبيعاته. مَن حقق 50% من التارجت لوحده يأخذ نصف نسبة الكوميشن.' },
-  { num:2, color:'#a78bfa', bg:'rgba(167,139,250,.12)',
-    text:'التيم ليدر ومدير المعرض يأخذ 35% من نسبة الـ1.5%، طالما ملتزم بالمعايير، ويجوز خفض النسبة عند عدم الالتزام.' },
-  { num:3, color:'#f87171', bg:'rgba(248,113,113,.12)',
-    text:'إذا انخفض التحقق عن 70% من التارجت → يُلغى الكوميشن تماماً والاكتفاء بالمرتب الأساسي.' },
-  { num:4, color:'#34d399', bg:'rgba(52,211,153,.12)',
-    text:'إذا تجاوز التحقق التارجت بنسبة +25% → ترتفع نسبة الكوميشن للفريق إلى 2%.' },
-  { num:5, color:'#fbbf24', bg:'rgba(251,191,36,.12)',
-    text:'أقل من 85% → كوميشن 1% | بين 85% و99% → كوميشن 1.4% | 100% فأكثر → كوميشن 1.5%.' },
-];
- 
-// ══════════════════════════════════════════
-// HELPERS
-// ══════════════════════════════════════════
-function fmtK(n){
-  if(n>=1e6) return (n/1e6).toFixed(2)+'M';
-  if(n>=1e3) return (n/1e3).toFixed(0)+'K';
-  return Math.round(n).toLocaleString();
-}
-function fmtFull(n){ return Math.round(n).toLocaleString('ar-EG')+' ج.م'; }
-function pct(a,b){ return b?((a-b)/b*100).toFixed(1)+'%':'—'; }
-function growthColor(v){ return v>=0?'var(--teal)':'var(--coral)'; }
- 
+// ══════════════════════════════════════════════════════════
+// PALETTES & CONSTANTS
+// ══════════════════════════════════════════════════════════
+const PF = ['rgba(79,158,248,.78)','rgba(52,211,153,.78)','rgba(167,139,250,.78)',
+            'rgba(251,191,36,.78)','rgba(248,113,113,.78)','rgba(34,211,238,.78)',
+            'rgba(244,114,182,.78)','rgba(129,140,248,.78)','rgba(16,185,129,.78)','rgba(245,158,11,.78)'];
+const PB = ['#4f9ef8','#34d399','#a78bfa','#fbbf24','#f87171','#22d3ee','#f472b6','#818cf8','#10b981','#f59e0b'];
+const KCC = {blue:'#4f9ef8',teal:'#34d399',purple:'#a78bfa',amber:'#fbbf24',coral:'#f87171',cyan:'#22d3ee',pink:'#f472b6',green:'#4ade80'};
+const ICC = {success:'#34d399',danger:'#f87171',warning:'#fbbf24',info:'#4f9ef8'};
+const CLRS = ['blue','teal','purple','amber','coral','cyan'];
+const ICOS = ['🎯','📊','📈','⭐','💡','🔢','📌','🏆'];
+const TIP_BASE = {
+  backgroundColor:'#1a2235',borderColor:'rgba(255,255,255,.1)',borderWidth:.5,
+  titleColor:'#e8edf8',bodyColor:'#7a8aaa',padding:11,cornerRadius:8,
+};
 const AX   = '#4a5568';
 const GRID = 'rgba(255,255,255,.05)';
-const TIP  = {
-  backgroundColor:'#1a2235', borderColor:'rgba(255,255,255,.1)', borderWidth:.5,
-  titleColor:'#e8edf8', bodyColor:'#7a8aaa', padding:11, cornerRadius:8,
+ 
+let fileData = null, charts = [];
+ 
+// ══════════════════════════════════════════════════════════
+// FILE READING
+// ══════════════════════════════════════════════════════════
+const dz = document.getElementById('dz');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('over'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('over'));
+dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('over'); onFile(e.dataTransfer.files[0]); });
+ 
+async function onFile(file) {
+  if (!file) return;
+  fileData = null;
+  document.getElementById('gb').disabled = true;
+  showFS('⏳ جاري قراءة الملف...', 'var(--muted)', true);
+  try {
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (['xlsx','xls'].includes(ext))      fileData = readExcel(await file.arrayBuffer());
+    else if (ext === 'csv')                fileData = readCSV(await file.text());
+    else if (ext === 'pdf')                fileData = await readPDF(file);
+    else                                   fileData = readText(await file.text());
+ 
+    if (!fileData || !Object.keys(fileData).length) throw new Error('لا توجد بيانات قابلة للقراءة');
+    const totalCells = Object.values(fileData).reduce((s, rows) => s + rows.length * (rows[0]?.length || 0), 0);
+    showFS(`✅ "${file.name}" — ${Object.keys(fileData).length} ورقة · ${totalCells.toLocaleString()} خلية`, 'var(--teal)', false);
+    document.getElementById('gb').disabled = false;
+  } catch(e) {
+    showFS('❌ ' + e.message, 'var(--coral)', false);
+  }
+}
+ 
+function readExcel(ab) {
+  const wb = XLSX.read(ab);
+  const out = {};
+  wb.SheetNames.forEach(n => {
+    const ws = wb.Sheets[n];
+    const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null, raw: true });
+    if (rows.length) out[n] = rows;
+  });
+  return out;
+}
+ 
+function readCSV(text) {
+  const rows = text.split('\n').map(l => l.split(',').map(c => c.trim().replace(/^"|"$/g, '') || null));
+  return rows.length ? { Sheet1: rows } : {};
+}
+ 
+async function readPDF(file) {
+  if (typeof pdfjsLib === 'undefined') throw new Error('مكتبة PDF.js غير متاحة');
+  const ab = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: ab }).promise;
+  const rows = [];
+  for (let i = 1; i <= Math.min(pdf.numPages, 15); i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    const line = content.items.map(it => it.str).join(' ');
+    rows.push([line]);
+  }
+  return { Sheet1: rows };
+}
+ 
+function readText(text) {
+  const rows = text.split('\n').filter(l => l.trim()).map(l => [l.trim()]);
+  return { Sheet1: rows };
+}
+ 
+function showFS(msg, color, spinning) {
+  const el = document.getElementById('fs');
+  el.classList.add('on');
+  el.querySelector('.spin').style.display = spinning ? 'block' : 'none';
+  document.getElementById('fstxt').textContent = msg;
+  document.getElementById('fstxt').style.color = color;
+}
+ 
+// ══════════════════════════════════════════════════════════
+// ANALYSIS ENGINE
+// ══════════════════════════════════════════════════════════
+function cn(v) {
+  // Clean numeric — DOES NOT remove decimal point
+  if (v === null || v === undefined) return null;
+  if (typeof v === 'number' && !isNaN(v)) return v;
+  let s = String(v).trim();
+  s = s.replace(/[,،]/g, '');        // thousands separators
+  s = s.replace(/%|$|£|€/g, '');     // currency/percent symbols
+  s = s.replace(/ج\.م|EGP|جم/g, ''); // Egyptian pound (careful: only exact match)
+  s = s.trim();
+  const n = parseFloat(s);
+  return isNaN(n) ? null : n;
+}
+ 
+function sv(v) { const s = String(v ?? '').trim(); return (s && s.toLowerCase() !== 'nan') ? s : ''; }
+ 
+const MONTH_MAP = {
+  'january':'يناير','february':'فبراير','march':'مارس','april':'أبريل','may':'مايو','june':'يونيو',
+  'july':'يوليو','august':'أغسطس','september':'سبتمبر','october':'أكتوبر','november':'نوفمبر','december':'ديسمبر',
+  'jan':'يناير','feb':'فبراير','mar':'مارس','apr':'أبريل','jun':'يونيو','jul':'يوليو',
+  'aug':'أغسطس','sep':'سبتمبر','oct':'أكتوبر','nov':'نوفمبر','dec':'ديسمبر',
+  'يناير':'يناير','فبراير':'فبراير','مارس':'مارس','أبريل':'أبريل','مايو':'مايو','يونيو':'يونيو',
+  'يوليو':'يوليو','أغسطس':'أغسطس','سبتمبر':'سبتمبر','أكتوبر':'أكتوبر','نوفمبر':'نوفمبر','ديسمبر':'ديسمبر',
+  'q1':'Q1','q2':'Q2','q3':'Q3','q4':'Q4',
 };
  
-// ══════════════════════════════════════════
-// KPIs
-// ══════════════════════════════════════════
-const totalAll = TOTAL.reduce((a,b)=>a+b,0);
-const smohaAll = SMOHA.reduce((a,b)=>a+b,0);
-const miamiAll = MIAMI.reduce((a,b)=>a+b,0);
-const onlineAll= ONLINE.reduce((a,b)=>a+b,0);
-const growthTotal = ((TOTAL[5]-TOTAL[0])/TOTAL[0]*100).toFixed(1);
+function isTime(x) {
+  const x2 = String(x).trim().toLowerCase();
+  if (Object.keys(MONTH_MAP).some(k => x2.includes(k))) return true;
+  if (/^(20\d\d|q\d|\d{4})$/.test(x2)) return true;
+  return false;
+}
  
-const KPIS = [
-  { lbl:'إجمالي التارجت (6 أشهر)', val:fmtK(totalAll), sub:fmtFull(totalAll), color:'var(--blue)', glow:'#4f9ef8', icon:'🎯' },
-  { lbl:'تارجت سموحة (إجمالي)',    val:fmtK(smohaAll), sub:Math.round(smohaAll/totalAll*100)+'% من الكل', color:'var(--teal)', glow:'#34d399', icon:'📍' },
-  { lbl:'تارجت ميامي (إجمالي)',    val:fmtK(miamiAll), sub:Math.round(miamiAll/totalAll*100)+'% من الكل', color:'var(--purple)', glow:'#a78bfa', icon:'📍' },
-  { lbl:'تارجت الأونلاين (إجمالي)',val:fmtK(onlineAll),sub:Math.round(onlineAll/totalAll*100)+'% من الكل', color:'var(--cyan)', glow:'#22d3ee', icon:'💻' },
-  { lbl:'نمو التارجت الإجمالي',    val:(growthTotal>0?'+':'')+growthTotal+'%', sub:'يونيو → نوفمبر', color:growthTotal>0?'var(--teal)':'var(--coral)', glow:growthTotal>0?'#34d399':'#f87171', icon:'📈' },
-  { lbl:'أعلى تارجت شهري',         val:fmtK(Math.max(...TOTAL)), sub:'نوفمبر 2020', color:'var(--amber)', glow:'#fbbf24', icon:'⭐' },
-];
+function normLabel(x) {
+  const x2 = String(x).trim().toLowerCase();
+  for (const [k, v] of Object.entries(MONTH_MAP)) {
+    if (x2.includes(k)) return v;
+  }
+  return String(x).trim();
+}
  
-const kg = document.getElementById('kpiGrid');
-KPIS.forEach(k=>{
-  kg.innerHTML += `<div class="kpi">
-    <div class="kpi-bar" style="background:${k.color}"></div>
-    <div class="kpi-glow" style="background:${k.glow}"></div>
-    <div class="kpi-ico">${k.icon}</div>
-    <div class="kpi-lbl">${k.lbl}</div>
-    <div class="kpi-val" style="color:${k.color}">${k.val}</div>
-    <div class="kpi-sub">${k.sub}</div>
-  </div>`;
-});
+function fmt(n) {
+  if (n === null || n === undefined || isNaN(n)) return '—';
+  n = Number(n);
+  if (Math.abs(n) >= 1e9)  return (n/1e9).toFixed(1) + 'B';
+  if (Math.abs(n) >= 1e6)  return (n/1e6).toFixed(2) + 'M';
+  if (Math.abs(n) >= 1e3)  return Math.round(n).toLocaleString('ar-EG');
+  return parseFloat(n.toFixed(2)).toLocaleString();
+}
  
-// ══════════════════════════════════════════
-// CHART BUILDER
-// ══════════════════════════════════════════
-function mkLine(id,labels,datasets,legId){
-  const ctx=document.getElementById(id);
-  new Chart(ctx,{type:'line',data:{labels,datasets},options:{
-    responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{display:false},tooltip:{...TIP,callbacks:{label:c=>` ${c.dataset.label}: ${fmtFull(c.parsed.y)}`}}},
-    scales:{
-      x:{ticks:{color:AX,font:{size:11}},grid:{color:GRID,drawBorder:false},border:{color:GRID}},
-      y:{ticks:{color:AX,font:{size:11},callback:v=>fmtK(v)},grid:{color:GRID,drawBorder:false},border:{color:GRID}}
+function analyzeSheets(sheets, hint) {
+  let best = null;
+  let allKV = {}, allText = [];
+ 
+  for (const [name, rows] of Object.entries(sheets)) {
+    extractKV(rows, allKV);
+    extractText(rows, allText);
+ 
+    const wide = tryWide(rows, name);
+    const tall = tryTall(rows, name);
+    for (const res of [wide, tall]) {
+      if (res && res.series.length) {
+        const score = res.series.length * 10 + res.labels.length;
+        if (!best || score > best._score) { res._score = score; best = res; }
+      }
     }
-  }});
-  if(legId) document.getElementById(legId).innerHTML=datasets.map(d=>`<div class="cleg-item"><div class="cleg-dot" style="background:${d.borderColor}"></div>${d.label}</div>`).join('');
+  }
+ 
+  if (!best) return buildKVDash(allKV, allText);
+  return buildOutput(best, allKV, allText, hint);
 }
  
-function mkBar(id,labels,datasets,legId,stacked=false){
-  const ctx=document.getElementById(id);
-  new Chart(ctx,{type:'bar',data:{labels,datasets},options:{
-    responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{display:false},tooltip:{...TIP,callbacks:{label:c=>` ${c.dataset.label}: ${fmtFull(c.parsed.y)}`}}},
-    scales:{
-      x:{stacked,ticks:{color:AX,font:{size:11},maxRotation:0},grid:{color:GRID,drawBorder:false},border:{color:GRID}},
-      y:{stacked,ticks:{color:AX,font:{size:11},callback:v=>fmtK(v)},grid:{color:GRID,drawBorder:false},border:{color:GRID}}
+function extractKV(rows, out) {
+  for (const row of rows) {
+    for (let c = 0; c < row.length - 1; c++) {
+      const k = sv(row[c]);
+      if (!k || k.length > 70 || cn(k) !== null) continue;
+      for (const dc of [1, 2]) {
+        if (c + dc >= row.length) break;
+        const n = cn(row[c + dc]);
+        if (n !== null) { out[k] = n; break; }
+      }
     }
-  }});
-  if(legId) document.getElementById(legId).innerHTML=datasets.map(d=>`<div class="cleg-item"><div class="cleg-dot" style="background:${Array.isArray(d.backgroundColor)?d.backgroundColor[0]:d.backgroundColor}"></div>${d.label}</div>`).join('');
+  }
 }
  
-function mkDoughnut(id,labels,data,colors,legId){
-  const ctx=document.getElementById(id);
-  new Chart(ctx,{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:colors,borderColor:colors,borderWidth:2,hoverOffset:8}]},options:{
-    responsive:true,maintainAspectRatio:false,cutout:'62%',
-    plugins:{legend:{display:false},tooltip:{...TIP,callbacks:{label:c=>` ${c.label}: ${fmtFull(c.parsed)} (${Math.round(c.parsed/c.dataset.data.reduce((a,b)=>a+b,0)*100)}%)`}}}
-  }});
-  if(legId) document.getElementById(legId).innerHTML=labels.map((l,i)=>`<div class="cleg-item"><div class="cleg-dot" style="background:${colors[i]}"></div>${l}</div>`).join('');
+function extractText(rows, out) {
+  for (const row of rows) {
+    for (const v of row) {
+      const s2 = sv(v);
+      if (s2.length > 80 && cn(s2) === null) out.push(s2);
+    }
+  }
 }
  
-// ══════════════════════════════════════════
-// BUILD CHARTS
-// ══════════════════════════════════════════
+function tryWide(rows, name) {
+  // Find time-header row
+  let timeRow = -1;
+  for (let r = 0; r < Math.min(8, rows.length); r++) {
+    const timeCnt = rows[r].filter(v => v && isTime(v)).length;
+    if (timeCnt >= 2) { timeRow = r; break; }
+  }
+  if (timeRow < 0) return null;
  
-// 1. Total trend
-mkLine('c-trend', MONTHS,
-  [{label:'الإجمالي',data:TOTAL,borderColor:'#4f9ef8',backgroundColor:'rgba(79,158,248,.1)',borderWidth:2.5,pointRadius:5,pointHoverRadius:8,pointBackgroundColor:'#4f9ef8',pointBorderColor:'#0b0f1c',pointBorderWidth:2,tension:.35,fill:true},
-   {label:'الأونلاين',data:ONLINE,borderColor:'#22d3ee',backgroundColor:'rgba(34,211,238,.07)',borderWidth:2,pointRadius:4,pointHoverRadius:7,pointBackgroundColor:'#22d3ee',pointBorderColor:'#0b0f1c',pointBorderWidth:2,tension:.35,fill:true}],
-  'leg-trend');
+  // Sub-label row?
+  let subRow = -1;
+  for (let r = timeRow + 1; r < Math.min(timeRow + 3, rows.length); r++) {
+    const vals = rows[r].slice(1).filter(v => v !== null && v !== undefined && sv(v));
+    const strVals = vals.filter(v => cn(v) === null && !isTime(v));
+    if (strVals.length >= 2) { subRow = r; break; }
+  }
  
-// 2. Branch comparison grouped bars
-mkBar('c-branches', MONTHS,
-  [{label:'سموحة',data:SMOHA,backgroundColor:'rgba(52,211,153,.75)',borderColor:'#34d399',borderWidth:1.5,borderRadius:5},
-   {label:'ميامي',data:MIAMI,backgroundColor:'rgba(167,139,250,.75)',borderColor:'#a78bfa',borderWidth:1.5,borderRadius:5}],
-  'leg-branches');
+  // Build col → (period, sub)
+  const colMeta = {};
+  let curTime = '';
+  for (let c = 1; c < rows[timeRow].length; c++) {
+    const t = sv(rows[timeRow][c]);
+    if (t && isTime(t)) curTime = normLabel(t);
+    if (!curTime) continue;
+    const sub = subRow >= 0 ? sv(rows[subRow][c]) : '';
+    const subClean = (sub && cn(sub) === null && !isTime(sub)) ? sub : '';
+    colMeta[c] = [curTime, subClean];
+  }
  
-// 3. Branch share doughnut (cumulative)
-mkDoughnut('c-share', ['سموحة','ميامي'],
-  [smohaAll, miamiAll],
-  ['#34d399','#a78bfa'],
-  'leg-share');
+  if (!Object.keys(colMeta).length) return null;
  
-// 4. Online vs Direct stacked
-mkBar('c-channels', MONTHS,
-  [{label:'أونلاين',data:ONLINE,backgroundColor:'rgba(34,211,238,.75)',borderColor:'#22d3ee',borderWidth:1,borderRadius:[5,5,0,0]},
-   {label:'مباشر',data:DIRECT,backgroundColor:'rgba(79,158,248,.65)',borderColor:'#4f9ef8',borderWidth:1,borderRadius:[5,5,0,0]}],
-  'leg-channels', true);
+  const uniquePeriods = [...new Set(Object.values(colMeta).map(m => m[0]))];
+  const uniqueSubs    = [...new Set(Object.values(colMeta).map(m => m[1]).filter(Boolean))];
+  const dataStart = subRow >= 0 ? subRow + 1 : timeRow + 1;
  
-// 5. Per-head averages
-mkLine('c-perhead', MONTHS,
-  [{label:'أونلاين (فردي)',data:AVG_ONLINE,borderColor:'#22d3ee',backgroundColor:'rgba(34,211,238,.08)',borderWidth:2,pointRadius:4,pointHoverRadius:7,pointBackgroundColor:'#22d3ee',pointBorderColor:'#0b0f1c',pointBorderWidth:2,tension:.35,fill:true},
-   {label:'مبيعات مباشرة (فردي)',data:AVG_DIRECT,borderColor:'#fbbf24',backgroundColor:'rgba(251,191,36,.08)',borderWidth:2,pointRadius:4,pointHoverRadius:7,pointBackgroundColor:'#fbbf24',pointBorderColor:'#0b0f1c',pointBorderWidth:2,tension:.35,fill:true}],
-  'leg-perhead');
+  const labels = uniquePeriods;
+  const series = [];
+  const textBlocks = [];
  
-// ══════════════════════════════════════════
-// DETAILED TABLE
-// ══════════════════════════════════════════
-const thead = `<thead><tr>
-  <th>الشهر</th>
-  <th>تارجت الإجمالي</th>
-  <th>سموحة</th>
-  <th>ميامي</th>
-  <th>الأونلاين</th>
-  <th>المبيعات المباشرة</th>
-  <th>نمو إجمالي %</th>
-</tr></thead>`;
+  for (let r = dataStart; r < rows.length; r++) {
+    const rowName = sv(rows[r][0]);
+    if (!rowName || cn(rowName) !== null) continue;
+    if (rowName.length > 80) { textBlocks.push(rowName); continue; }
  
-let tbody = '<tbody>';
-MONTHS.forEach((m,i)=>{
-  const g = i===0?'—':pct(TOTAL[i],TOTAL[i-1]);
-  const gNum = i===0?0:((TOTAL[i]-TOTAL[i-1])/TOTAL[i-1]*100);
-  const cls = i===0?'':'td-'+(gNum>=0?'pos':'neg');
-  tbody += `<tr>
-    <td><strong>${m}</strong></td>
-    <td>${fmtFull(TOTAL[i])}</td>
-    <td>${fmtFull(SMOHA[i])}</td>
-    <td>${fmtFull(MIAMI[i])}</td>
-    <td>${fmtFull(ONLINE[i])}</td>
-    <td>${fmtFull(DIRECT[i])}</td>
-    <td class="${cls}">${i===0?'—':(gNum>=0?'↑ ':' ↓ ')+Math.abs(gNum).toFixed(1)+'%'}</td>
-  </tr>`;
-});
-tbody += '<tr style="background:rgba(79,158,248,.07);font-weight:600">';
-tbody += `<td>الإجمالي</td><td>${fmtFull(totalAll)}</td><td>${fmtFull(smohaAll)}</td><td>${fmtFull(miamiAll)}</td><td>${fmtFull(onlineAll)}</td><td>${fmtFull(DIRECT.reduce((a,b)=>a+b,0))}</td><td class="td-pos">↑ ${growthTotal}%</td>`;
-tbody += '</tr></tbody>';
-document.getElementById('mainTable').innerHTML = thead+tbody;
+    if (uniqueSubs.length) {
+      for (const sub of uniqueSubs) {
+        const vals = uniquePeriods.map(p => {
+          const cols = Object.entries(colMeta).filter(([, [pp, ss]]) => pp === p && ss === sub).map(([c]) => Number(c));
+          return cols.length ? cn(rows[r][cols[0]]) : null;
+        });
+        if (vals.some(v => v !== null)) series.push({ name: `${rowName} (${sub})`, values: vals });
+      }
+    } else {
+      const vals = uniquePeriods.map(p => {
+        const cols = Object.entries(colMeta).filter(([, [pp]]) => pp === p).map(([c]) => Number(c));
+        const pvs = cols.map(c => cn(rows[r][c])).filter(v => v !== null);
+        return pvs.length ? pvs[0] : null;
+      });
+      if (vals.some(v => v !== null)) series.push({ name: rowName, values: vals });
+    }
+  }
  
-// ══════════════════════════════════════════
-// GROWTH STRIP
-// ══════════════════════════════════════════
-const gs = document.getElementById('growthStrip');
-MONTHS.forEach((m,i)=>{
-  if(i===0){gs.innerHTML+=`<div class="gitem"><div class="gitem-lbl">${m}</div><div class="gitem-val" style="color:var(--muted)">القاعدة</div></div>`;return;}
-  const g=((TOTAL[i]-TOTAL[i-1])/TOTAL[i-1]*100);
-  gs.innerHTML+=`<div class="gitem">
-    <div class="gitem-lbl">${m}</div>
-    <div class="gitem-val" style="color:${growthColor(g)}">${g>=0?'+':''}${g.toFixed(1)}%</div>
-  </div>`;
-});
+  const title = sv(rows[0]?.[0]) || name;
+  return { labels, series, title, textBlocks, isTime: true };
+}
  
-// ══════════════════════════════════════════
-// COMMISSION RULES
-// ══════════════════════════════════════════
-const rg = document.getElementById('rulesGrid');
-RULES.forEach(r=>{
-  rg.innerHTML+=`<div class="rule" style="background:${r.bg};border-color:${r.color}22">
-    <div class="rule-num" style="background:${r.color}22;color:${r.color}">${r.num}</div>
-    <div class="rule-txt">${r.text}</div>
-  </div>`;
-});
+function tryTall(rows, name) {
+  // Find header row
+  let hRow = 0, bestSc = -1;
+  for (let r = 0; r < Math.min(8, rows.length); r++) {
+    const row = rows[r] || [];
+    const ne = row.filter(v => sv(v));
+    const sc = ne.filter(v => cn(v) === null).length * 2 + ne.length;
+    if (sc > bestSc) { bestSc = sc; hRow = r; }
+  }
+  if (bestSc < 2) return null;
  
-// ══════════════════════════════════════════
+  const headers = rows[hRow].map(sv);
+  const data = rows.slice(hRow + 1);
+ 
+  // Label col
+  let lblCol = -1;
+  for (let c = 0; c < Math.min(3, headers.length); c++) {
+    const vals = data.map(r => sv(r?.[c])).filter(Boolean);
+    const real = vals.filter(v => cn(v) === null);
+    if (real.length >= Math.max(2, vals.length * 0.3)) { lblCol = c; break; }
+  }
+  if (lblCol < 0) return null;
+ 
+  // Numeric cols
+  const numCols = headers.map((_, c) => {
+    if (c === lblCol) return false;
+    const valid = data.filter(r => cn(r?.[c]) !== null).length;
+    return valid >= Math.max(2, data.length * 0.3);
+  }).map((ok, c) => ok ? c : -1).filter(c => c >= 0);
+ 
+  if (!numCols.length) return null;
+ 
+  const labels = data.map(r => sv(r?.[lblCol])).filter(v => v && cn(v) === null);
+  const series = numCols.map(c => ({
+    name: headers[c] || `عمود ${c}`,
+    values: data.filter(r => sv(r?.[lblCol]) && cn(sv(r?.[lblCol])) === null).map(r => cn(r?.[c])),
+  }));
+ 
+  const textBlocks = rows.flatMap(row => row.map(sv).filter(v => v.length > 80 && cn(v) === null));
+  const title = sv(rows[0]?.[0]) || name;
+  return { labels, series, title, textBlocks, isTime: labels.some(isTime) };
+}
+ 
+function buildOutput(data, kv, textBlocks, hint) {
+  const { labels, series, title, isTime: isT, textBlocks: localTB } = data;
+  const allText = [...new Set([...(localTB || []), ...textBlocks])];
+  const n = series.length;
+  const ML = 20;
+ 
+  // KPIs
+  const kpis = [];
+  series.slice(0, 5).forEach((sr, i) => {
+    const vals = sr.values.filter(v => v !== null);
+    if (!vals.length) return;
+    const total = vals.reduce((a,b)=>a+b,0), avg = total/vals.length;
+    kpis.push({ label: sr.name, value: fmt(total), sub: `متوسط: ${fmt(avg)}`,
+                color: CLRS[i%CLRS.length], icon: ICOS[i%ICOS.length], trend: 'neu' });
+  });
+ 
+  if (isT && series.length) {
+    for (const sr of series.slice(0,2)) {
+      const vals = sr.values.filter(v => v !== null);
+      if (vals.length >= 2 && vals[0]) {
+        const g = Math.round((vals[vals.length-1]-vals[0])/Math.abs(vals[0])*1000)/10;
+        kpis.push({ label: `نمو: ${sr.name}`, value: `${g>=0?'+':''}${g}%`,
+                    sub: labels.length ? `${labels[0]} → ${labels[labels.length-1]}` : '',
+                    color: g>=0?'teal':'coral', icon: g>=0?'📈':'📉', trend: g>=0?'pos':'neg' });
+        break;
+      }
+    }
+  }
+ 
+  Object.entries(kv).slice(0, 3).forEach(([k, v]) => {
+    if (kpis.some(kp => kp.label === k) || k.length > 50) return;
+    kpis.push({ label: k, value: fmt(v), sub: '—', color: CLRS[kpis.length%CLRS.length], icon: '📌', trend: 'neu' });
+  });
+ 
+  // Datasets
+  const lbl = labels.slice(0, ML);
+ 
+  function linDS(sr, i) {
+    return { label: sr.name, data: sr.values.slice(0,ML).map(v=>v??0),
+             borderColor: PB[i%PB.length], backgroundColor: PF[i%PF.length].replace('.78','.10'),
+             fill:true,tension:.38,pointRadius:4,pointHoverRadius:7,
+             pointBackgroundColor:PB[i%PB.length],pointBorderColor:'#0b0f1c',pointBorderWidth:2,borderWidth:2.5 };
+  }
+  function barDS(sr, i, perBar=false) {
+    const l = sr.values.slice(0,ML).length;
+    const bg = perBar ? Array.from({length:l},(_,j)=>PF[(i*3+j)%PF.length]) : PF[i%PF.length];
+    const bc = perBar ? Array.from({length:l},(_,j)=>PB[(i*3+j)%PB.length]) : PB[i%PB.length];
+    return { label:sr.name, data:sr.values.slice(0,ML).map(v=>v??0),
+             backgroundColor:bg,borderColor:bc,borderWidth:1.5,borderRadius:5,borderSkipped:false };
+  }
+ 
+  const chartDefs = [];
+ 
+  if (isT) {
+    chartDefs.push({ id:'c0',type:'line',title:'التطور عبر الزمن',labels:lbl,datasets:series.slice(0,4).map(linDS) });
+    if (n>=2) chartDefs.push({ id:'c1',type:'bar',title:'مقارنة السلاسل',labels:lbl,datasets:series.slice(0,4).map((sr,i)=>barDS(sr,i)) });
+  } else {
+    chartDefs.push({ id:'c0',type:'bar',title:'مقارنة',labels:lbl,datasets:series.slice(0,4).map((sr,i)=>barDS(sr,i,n===1)) });
+  }
+ 
+  if (n>=2) {
+    const dL=[], dV=[];
+    series.slice(0,8).forEach(sr=>{const vals=sr.values.filter(v=>v!==null);if(vals.length){dL.push(sr.name);dV.push(vals.reduce((a,b)=>a+b,0));}});
+    chartDefs.push({ id:'c2',type:'doughnut',title:'التوزيع النسبي',labels:dL,
+                     datasets:[{label:'الإجمالي',data:dV,backgroundColor:PF.slice(0,dV.length),borderColor:PB.slice(0,dV.length),borderWidth:2}] });
+  }
+ 
+  if (isT && n===2) {
+    chartDefs.push({ id:'c4',type:'bar',title:'تراكمي',labels:lbl,
+                     datasets:series.slice(0,2).map((sr,i)=>barDS(sr,i)),stacked:true });
+  }
+ 
+  // Table
+  const tHdrs = ['البند', ...series.slice(0,6).map(sr=>sr.name)];
+  const tRows = labels.slice(0,20).map((lbl2,i) =>
+    [lbl2, ...series.slice(0,6).map(sr => i<sr.values.length && sr.values[i]!==null ? fmt(sr.values[i]) : '—')]
+  );
+  if (n>=2 || labels.length>3) {
+    tRows.push(['الإجمالي', ...series.slice(0,6).map(sr => {
+      const v = sr.values.filter(v=>v!==null); return v.length ? fmt(v.reduce((a,b)=>a+b,0)) : '—';
+    })]);
+  }
+  if (isT && series.length) {
+    tRows.push(['النمو %', ...series.slice(0,6).map(sr => {
+      const v=sr.values.filter(v=>v!==null);
+      if(v.length>=2&&v[0]){const g=Math.round((v[v.length-1]-v[0])/Math.abs(v[0])*1000)/10;return `${g>=0?'+':''}${g}%`;}
+      return '—';
+    })]);
+  }
+ 
+  // Insights
+  const insights = [];
+  series.slice(0,3).forEach(sr => {
+    const vals=sr.values.filter(v=>v!==null); if(!vals.length) return;
+    const total=vals.reduce((a,b)=>a+b,0), mx=Math.max(...vals), mn=Math.min(...vals);
+    const mxi=sr.values.indexOf(mx), mxl=mxi>=0&&mxi<labels.length?labels[mxi]:'';
+    insights.push({text:`"${sr.name}": إجمالي ${fmt(total)} — الذروة في ${mxl} (${fmt(mx)})`,type:'success'});
+    if(vals.length>=2&&vals[0]){const g=Math.round((vals[vals.length-1]-vals[0])/Math.abs(vals[0])*1000)/10;
+      insights.push({text:`نمو "${sr.name}": ${g>=0?'+':''}${g}%`,type:g>=0?'success':'danger'});}
+  });
+  if(n>=2){
+    const tots=series.map(sr=>({n:sr.name,v:sr.values.filter(v=>v!==null).reduce((a,b)=>a+b,0)})).sort((a,b)=>b.v-a.v);
+    insights.push({text:`الأعلى: "${tots[0].n}" بـ ${fmt(tots[0].v)} — الأدنى: "${tots[tots.length-1].n}" بـ ${fmt(tots[tots.length-1].v)}`,type:'info'});
+  }
+ 
+  // Rules from text
+  const rules = [...new Set(allText)].filter(t=>t.length>20).slice(0,6).map(t=>({text:t.slice(0,350)}));
+ 
+  return {
+    title: hint ? `${title} — ${hint}` : title,
+    subtitle: `${n} سلسلة · ${labels.length} بند`,
+    kpis: kpis.slice(0,6), charts: chartDefs,
+    table: { headers: tHdrs, rows: tRows },
+    insights: insights.slice(0,6), rules,
+  };
+}
+ 
+function buildKVDash(kv, textBlocks) {
+  const keys=Object.keys(kv).slice(0,12), vals=keys.map(k=>kv[k]);
+  const kpis=keys.slice(0,6).map((k,i)=>({label:k,value:fmt(kv[k]),sub:'—',color:CLRS[i%CLRS.length],icon:ICOS[i%ICOS.length],trend:'neu'}));
+  const charts=[{id:'c0',type:'bar',title:'البيانات',labels:keys,
+    datasets:[{label:'القيم',data:vals,backgroundColor:PF.slice(0,vals.length),borderColor:PB.slice(0,vals.length),borderWidth:1.5,borderRadius:5}]}];
+  const rules=[...new Set(textBlocks)].filter(t=>t.length>20).slice(0,5).map(t=>({text:t.slice(0,300)}));
+  return {title:'تحليل البيانات',subtitle:`${keys.length} مؤشر`,kpis,charts,table:null,insights:[],rules};
+}
+ 
+// ══════════════════════════════════════════════════════════
+// GENERATE & RENDER
+// ══════════════════════════════════════════════════════════
+async function generate() {
+  if (!fileData) return;
+  const hint = document.getElementById('hint').value.trim();
+  document.getElementById('gb').disabled = true;
+  document.getElementById('dash').style.display = 'none';
+  showSt('🔍 جاري تحليل البيانات...');
+ 
+  await new Promise(r => setTimeout(r, 60));
+  try {
+    const dashData = analyzeSheets(fileData, hint);
+    hideSt();
+    render(dashData);
+  } catch(e) {
+    hideSt();
+    alert('خطأ في التحليل: ' + e.message);
+  }
+  document.getElementById('gb').disabled = false;
+}
+ 
+function render(d) {
+  charts.forEach(c=>c.destroy()); charts=[];
+ 
+  document.getElementById('dtit').textContent = d.title || 'الداشبورد';
+  document.getElementById('dsub').textContent  = d.subtitle || '';
+ 
+  // KPIs
+  const kg = document.getElementById('kpiGrid'); kg.innerHTML = '';
+  (d.kpis||[]).forEach(k => {
+    const c = KCC[k.color] || KCC.blue;
+    const ar = k.trend==='pos'?'↑ ':k.trend==='neg'?'↓ ':'';
+    kg.innerHTML += `<div class="kpi">
+      <div class="kpi-accent" style="background:${c}"></div>
+      <div class="kpi-glow"   style="background:${c}"></div>
+      <div class="kpi-ico">${k.icon||'📊'}</div>
+      <div class="kpi-lbl">${k.label}</div>
+      <div class="kpi-val" style="color:${c}">${k.value}</div>
+      <div class="kpi-sub ${k.trend||'neu'}">${ar}${k.sub||'—'}</div>
+    </div>`;
+  });
+ 
+  // Charts
+  const cg = document.getElementById('chartGrid'); cg.innerHTML = '';
+  const TL = {bar:'أعمدة',line:'خط',pie:'دائري',doughnut:'دونات'};
+  const TIP = (extras={}) => ({...TIP_BASE,...extras,callbacks:{label:ctx=>{
+    const v=ctx.parsed?.y??ctx.parsed;
+    return ` ${ctx.dataset.label||ctx.label}: ${typeof v==='number'?Math.round(v).toLocaleString('ar-EG'):v}`;
+  }}});
+ 
+  (d.charts||[]).forEach((ch, idx) => {
+    const isPie  = ['pie','doughnut'].includes(ch.type);
+    const isLine = ch.type === 'line';
+    const isTall = ch.labels?.length > 10 && !isPie;
+    cg.innerHTML += `<div class="card">
+      <div class="card-head"><span class="card-title">${ch.title}</span><span class="card-badge">${TL[ch.type]||ch.type}</span></div>
+      <div class="cw ${isTall?'tall':''}"><canvas id="${ch.id}"></canvas></div>
+      <div class="leg" id="leg_${ch.id}"></div>
+    </div>`;
+ 
+    setTimeout(() => {
+      const ctx = document.getElementById(ch.id); if(!ctx) return;
+      const opts = {
+        responsive:true, maintainAspectRatio:false,
+        animation:{duration:700,easing:'easeOutQuart'},
+        plugins:{ legend:{display:false}, tooltip:TIP() },
+        scales: isPie ? {} : {
+          x:{stacked:ch.stacked||false,ticks:{color:AX,font:{size:11},autoSkip:false,maxRotation:35},grid:{color:GRID,drawBorder:false},border:{color:GRID}},
+          y:{stacked:ch.stacked||false,ticks:{color:AX,font:{size:11},callback:v=>Math.abs(v)>=1e6?Math.round(v/1e6)+'M':Math.abs(v)>=1e3?Math.round(v/1000)+'K':v},grid:{color:GRID,drawBorder:false},border:{color:GRID}}
+        }
+      };
+      if(isPie) opts.cutout = '60%';
+      const inst = new Chart(ctx, {type:ch.type,data:{labels:ch.labels,datasets:ch.datasets},options:opts});
+      charts.push(inst);
+ 
+      // Legend
+      const leg = document.getElementById('leg_'+ch.id);
+      if(leg) {
+        if(isPie) leg.innerHTML = ch.labels.map((l,j)=>`<div class="li"><div class="ld" style="background:${PB[j%PB.length]}"></div>${l}</div>`).join('');
+        else if((ch.datasets||[]).length>1) leg.innerHTML = ch.datasets.map((ds,j)=>`<div class="li"><div class="ld" style="background:${Array.isArray(ds.borderColor)?ds.borderColor[0]:ds.borderColor}"></div>${ds.label}</div>`).join('');
+        else leg.style.display = 'none';
+      }
+    }, 80 + idx * 30);
+  });
+ 
+  // Table
+  const tc = document.getElementById('tblCard');
+  if (d.table?.headers?.length && d.table?.rows?.length) {
+    tc.style.display = 'block';
+    document.getElementById('tblWrap').innerHTML =
+      '<table><thead><tr>'+d.table.headers.map(h=>`<th>${h}</th>`).join('')+'</tr></thead><tbody>'+
+      d.table.rows.map(r=>'<tr>'+r.map(c=>`<td title="${c}">${c}</td>`).join('')+'</tr>').join('')+
+      '</tbody></table>';
+  } else tc.style.display = 'none';
+ 
+  // Insights
+  const ic = document.getElementById('insCard');
+  if (d.insights?.length) {
+    ic.style.display = 'block';
+    document.getElementById('insList').innerHTML = d.insights.map(ins=>
+      `<div class="ins-item"><div class="ins-dot" style="background:${ICC[ins.type]||ICC.info}"></div><span>${ins.text}</span></div>`
+    ).join('');
+  } else ic.style.display = 'none';
+ 
+  // Rules
+  const rw = document.getElementById('rulesWrap'); rw.innerHTML = '';
+  if (d.rules?.length) {
+    rw.innerHTML = `<div class="sec" style="margin-top:4px"><div class="sec-bar" style="background:var(--purple)"></div><h2>ملاحظات ونصوص من الملف</h2></div>
+      <div class="rules-grid">${d.rules.map((r,i)=>`<div class="rule"><div class="rule-n">${i+1}</div><div class="rule-t">${r.text}</div></div>`).join('')}</div>`;
+  }
+ 
+  document.getElementById('dash').style.display = 'block';
+  document.getElementById('dash').scrollIntoView({behavior:'smooth',block:'start'});
+}
+ 
+// ══════════════════════════════════════════════════════════
 // EXPORT
-// ══════════════════════════════════════════
-function xl(m){document.getElementById('xm').textContent=m;document.getElementById('xload').classList.add('on')}
-function xld(){document.getElementById('xload').classList.remove('on')}
+// ══════════════════════════════════════════════════════════
+function showXL(m){document.getElementById('xm').textContent=m;document.getElementById('xl').classList.add('on');}
+function hideXL(){document.getElementById('xl').classList.remove('on');}
+function showSt(m){document.getElementById('stxt').textContent=m;document.getElementById('st').classList.add('on');}
+function hideSt(){document.getElementById('st').classList.remove('on');}
  
 async function xPNG(){
-  if(typeof html2canvas==='undefined'){alert('مكتبة التصدير لم تُحمَّل');return;}
-  xl('جاري إنشاء الصورة...');
+  if(typeof html2canvas==='undefined'){alert('مكتبة التصدير غير متاحة');return;}
+  showXL('جاري إنشاء الصورة...');
   try{
     const cv=await html2canvas(document.getElementById('cz'),{scale:2,useCORS:true,logging:false,backgroundColor:'#0b0f1c'});
-    const a=document.createElement('a');a.download='commission-dashboard.png';a.href=cv.toDataURL('image/png');a.click();
+    const a=document.createElement('a');a.download='dashboard.png';a.href=cv.toDataURL('image/png');a.click();
   }catch(e){alert('خطأ: '+e.message);}
-  xld();
+  hideXL();
 }
  
 async function xPDF(){
   if(typeof html2canvas==='undefined'){window.print();return;}
-  xl('جاري إنشاء PDF...');
+  showXL('جاري إنشاء PDF...');
   try{
     const cv=await html2canvas(document.getElementById('cz'),{scale:1.8,useCORS:true,logging:false,backgroundColor:'#0b0f1c'});
     const img=cv.toDataURL('image/jpeg',.95);
     const {jsPDF}=window.jspdf||{};
-    if(!jsPDF){window.print();xld();return;}
-    const pdf=new jsPDF({orientation:'landscape',unit:'px',format:[cv.width,cv.height]});
+    if(!jsPDF){window.print();hideXL();return;}
+    const pdf=new jsPDF({orientation:cv.width>cv.height?'landscape':'portrait',unit:'px',format:[cv.width,cv.height]});
     pdf.addImage(img,'JPEG',0,0,cv.width,cv.height);
-    pdf.save('commission-dashboard.pdf');
+    pdf.save('dashboard.pdf');
   }catch(e){alert('خطأ: '+e.message);}
-  xld();
+  hideXL();
+}
+ 
+function cpInsights(){
+  const items=document.querySelectorAll('.ins-item span');
+  const t=document.getElementById('dtit').textContent+'\n\n'+Array.from(items).map(i=>'• '+i.textContent).join('\n');
+  navigator.clipboard.writeText(t).then(()=>alert('تم النسخ!')).catch(()=>alert('غير متاح'));
+}
+ 
+function reset(){
+  fileData=null;
+  document.getElementById('dash').style.display='none';
+  document.getElementById('fs').classList.remove('on');
+  document.getElementById('hint').value='';
+  document.getElementById('gb').disabled=true;
+  document.getElementById('fi').value='';
+  charts.forEach(c=>c.destroy());charts=[];
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 </script>
 </body>
